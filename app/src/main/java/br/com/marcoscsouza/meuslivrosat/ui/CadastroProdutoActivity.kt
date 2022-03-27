@@ -16,6 +16,7 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.ktx.Firebase
+import java.util.*
 
 class CadastroProdutoActivity : AppCompatActivity() {
     private val binding by lazy {
@@ -29,12 +30,35 @@ class CadastroProdutoActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-        cadastrarProdutoFirestore()
+
+
+        Thread(Runnable {
+            cadastrarProdutoFirestore()
+        }).start()
+
+        Toast.makeText(this, "rodar: ${doInBackground()}", Toast.LENGTH_SHORT).show()
+
+
         produtoId = intent.getStringExtra("PRODUTO_ID")
+    }
+
+    protected fun doInBackground(vararg voids: Void?): String? {
+        val r = Random()
+        val n: Int = r.nextInt(11)
+
+        val s = n * 200
+        try {
+            Thread.sleep(s.toLong())
+        } catch (e: InterruptedException) {
+            e.printStackTrace()
+        }
+
+        return "Awake at last after sleeping for $s milliseconds!"
     }
 
     private fun cadastrarProdutoFirestore() {
         val btSalvar = binding.btSalvar
+
 
         btSalvar.setOnClickListener {
             val campoNome = binding.cadastroProdutoNome
@@ -47,21 +71,35 @@ class CadastroProdutoActivity : AppCompatActivity() {
             val documento = produtoId?.let {
                 colecao.document(it)
             } ?: colecao.document()
-            documento.set(produtoDocumento)
 
             Log.i("salvar", "produto salvo ${documento.id}")
+
             val i = Intent(this, ListaProdutoActivity::class.java)
             startActivity(i)
+
+            try {
+                Toast.makeText(this, "Cadastrando produto...", Toast.LENGTH_SHORT).show()
+                Thread.sleep(2000)
+                documento.set(produtoDocumento)
+                Toast.makeText(this, "Produto cadastrado com sucesso!", Toast.LENGTH_SHORT).show()
+
+            } catch (e: InterruptedException) {
+                e.printStackTrace()
+            }
         }
     }
 
     override fun onResume() {
         super.onResume()
-        if (!estaLogado()) {
-            val i = Intent(this, LogarUsuarioActivity::class.java)
-            startActivity(i)
+        runOnUiThread {
+            if (!estaLogado()) {
+                val i = Intent(this, LogarUsuarioActivity::class.java)
+                startActivity(i)
+            }
         }
-        buscarProdutoPorIdFirestore()
+        Thread(Runnable {
+            buscarProdutoPorIdFirestore()
+        }).start()
     }
 
     private fun buscarProdutoPorIdFirestore() {
@@ -85,7 +123,7 @@ class CadastroProdutoActivity : AppCompatActivity() {
             }
     }
 
-//  Configurar menu de usuario
+    //  Configurar menu de usuario
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menuuser, menu)
 

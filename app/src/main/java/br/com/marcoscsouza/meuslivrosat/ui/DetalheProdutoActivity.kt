@@ -33,17 +33,23 @@ class DetalheProdutoActivity : AppCompatActivity() {
 
         produtoId = intent.getStringExtra("PRODUTO_ID")
 
-        configurarBtnEditarProduto()
-        configurarBtnDeletarProduto()
+        Thread(Runnable {
+            configurarBtnEditarProduto()
+            configurarBtnDeletarProduto()
+        }).start()
     }
 
     override fun onResume() {
         super.onResume()
-        if (!estaLogado()) {
-            val i = Intent(this, LogarUsuarioActivity::class.java)
-            startActivity(i)
+        runOnUiThread {
+            if (!estaLogado()) {
+                val i = Intent(this, LogarUsuarioActivity::class.java)
+                startActivity(i)
+            }
         }
-        buscarProdutoNoFirestore()
+        Thread(Runnable {
+            buscarProdutoNoFirestore()
+        }).start()
     }
 
     //  Configurar menu de usuario
@@ -87,10 +93,19 @@ class DetalheProdutoActivity : AppCompatActivity() {
         val btDeletar = binding.btDeletar
         btDeletar.setOnClickListener {
 
-            firestore.collection("produtos")
-                .document(produtoId.toString())
-                .delete()
-            finish()
+            try {
+                Toast.makeText(this, "Excluindo produto...", Toast.LENGTH_SHORT).show()
+                firestore.collection("produtos")
+                    .document(produtoId.toString())
+                    .delete()
+                finish()
+                Thread.sleep(2000)
+                Toast.makeText(this, "Produto excluido com sucesso!", Toast.LENGTH_SHORT).show()
+
+            } catch (e: InterruptedException) {
+                e.printStackTrace()
+            }
+
         }
     }
 

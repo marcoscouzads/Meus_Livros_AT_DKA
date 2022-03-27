@@ -33,19 +33,22 @@ class ListaProdutoActivity : AppCompatActivity() {
 
         rvProdutos()
         botaoFab()
-        buscarTodosProdutosNoFirestore()
+        Thread(Runnable {
+            buscarTodosProdutosNoFirestoreTempoReal()
+        }).start()
     }
 
     override fun onResume() {
         super.onResume()
-        if (!estaLogado()) {
-            val i = Intent(this, LogarUsuarioActivity::class.java)
-            startActivity(i)
+        runOnUiThread {
+            if (!estaLogado()) {
+                val i = Intent(this, LogarUsuarioActivity::class.java)
+                startActivity(i)
+            }
         }
-
     }
 
-    private fun buscarTodosProdutosNoFirestore() {
+    private fun buscarTodosProdutosNoFirestoreTempoReal() {
         firestore.collection("produtos")
             .addSnapshotListener { s, _ ->
                 s?.let { snapshot ->
@@ -104,7 +107,7 @@ class ListaProdutoActivity : AppCompatActivity() {
         }
     }
 
-//  Configurar menu de usuario
+    //  Configurar menu de usuario
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menuuser, menu)
 

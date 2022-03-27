@@ -58,4 +58,10 @@ dependencies {
 
 //    Firebase Firestore
     implementation 'com.google.firebase:firebase-firestore-ktx'
+
+
+    // Kotlin components
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+    api "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2"
+    api "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.2"
 }
