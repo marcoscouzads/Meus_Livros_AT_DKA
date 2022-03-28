@@ -31,6 +31,8 @@ class ListaProdutoActivity : AppCompatActivity() {
         setContentView(binding.root)
         title = "Lista de Produtos"
 
+        firestore.collection("produtos")
+
         rvProdutos()
         botaoFab()
         Thread(Runnable {
@@ -109,6 +111,7 @@ class ListaProdutoActivity : AppCompatActivity() {
 
     //  Configurar menu de usuario
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_syncro_lista, menu)
         menuInflater.inflate(R.menu.menuuser, menu)
 
         return super.onCreateOptionsMenu(menu)
@@ -122,6 +125,24 @@ class ListaProdutoActivity : AppCompatActivity() {
                 firebaseAuth.signOut()
                 val i = Intent(this, LogarUsuarioActivity::class.java)
                 startActivity(i)
+            }
+            R.id.syncroMenu -> {
+                Toast.makeText(this, "Sincronizar dados.", Toast.LENGTH_SHORT).show()
+                firestore.collection("produtos")
+                    .addSnapshotListener { s, _ ->
+                        s?.let { snapshot ->
+                            val produtos = mutableListOf<Produto>()
+
+                            for (documento in snapshot.documents) {
+                                Log.i("listagem", "Doc find tempo real ${documento.data}")
+                                val produtoDocumento = documento.toObject<ProdutoDocumento>()
+                                produtoDocumento?.let { produtoDocumentoNaoNulo ->
+                                    produtos.add(produtoDocumentoNaoNulo.paraProduto(documento.id))
+                                }
+                            }
+                            adapter.atualiza(produtos)
+                        }
+                    }
             }
         }
         return super.onOptionsItemSelected(item)

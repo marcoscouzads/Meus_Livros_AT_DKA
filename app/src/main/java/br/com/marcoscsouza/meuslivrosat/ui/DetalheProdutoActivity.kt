@@ -2,10 +2,13 @@ package br.com.marcoscsouza.meuslivrosat.ui
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.ContextMenu
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import br.com.marcoscsouza.meuslivrosat.R
 import br.com.marcoscsouza.meuslivrosat.databinding.ActivityDetalheProdutoBinding
 import br.com.marcoscsouza.meuslivrosat.db.Produto
@@ -15,6 +18,8 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class DetalheProdutoActivity : AppCompatActivity() {
     private val binding by lazy {
@@ -56,6 +61,8 @@ class DetalheProdutoActivity : AppCompatActivity() {
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menuuser, menu)
 
+        val menuSincro = R.id.syncroMenu
+        menuSincro
         return super.onCreateOptionsMenu(menu)
     }
 
@@ -68,6 +75,7 @@ class DetalheProdutoActivity : AppCompatActivity() {
                 val i = Intent(this, LogarUsuarioActivity::class.java)
                 startActivity(i)
             }
+
         }
         return super.onOptionsItemSelected(item)
     }
@@ -95,11 +103,19 @@ class DetalheProdutoActivity : AppCompatActivity() {
 
             try {
                 Toast.makeText(this, "Excluindo produto...", Toast.LENGTH_SHORT).show()
-                firestore.collection("produtos")
-                    .document(produtoId.toString())
-                    .delete()
-                finish()
-                Thread.sleep(2000)
+
+                Thread.sleep(1000)
+                lifecycleScope.launch {
+                    delay(2500L)
+                    firestore.collection("produtos")
+                        .document(produtoId.toString())
+                        .delete()
+                    finish()
+                     }
+                Intent(this,ListaProdutoActivity::class.java).also {
+                    startActivity(it)
+                }
+
                 Toast.makeText(this, "Produto excluido com sucesso!", Toast.LENGTH_SHORT).show()
 
             } catch (e: InterruptedException) {

@@ -7,6 +7,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import br.com.marcoscsouza.meuslivrosat.R
 import br.com.marcoscsouza.meuslivrosat.databinding.ActivityCadastroProdutoBinding
 import br.com.marcoscsouza.meuslivrosat.db.Produto
@@ -16,6 +17,9 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.util.*
 
 class CadastroProdutoActivity : AppCompatActivity() {
@@ -36,25 +40,25 @@ class CadastroProdutoActivity : AppCompatActivity() {
             cadastrarProdutoFirestore()
         }).start()
 
-        Toast.makeText(this, "rodar: ${doInBackground()}", Toast.LENGTH_SHORT).show()
+//        Toast.makeText(this, "rodar: ${doInBackground()}", Toast.LENGTH_SHORT).show()
 
 
         produtoId = intent.getStringExtra("PRODUTO_ID")
     }
 
-    protected fun doInBackground(vararg voids: Void?): String? {
-        val r = Random()
-        val n: Int = r.nextInt(11)
-
-        val s = n * 200
-        try {
-            Thread.sleep(s.toLong())
-        } catch (e: InterruptedException) {
-            e.printStackTrace()
-        }
-
-        return "Awake at last after sleeping for $s milliseconds!"
-    }
+//    protected fun doInBackground(vararg voids: Void?): String? {
+//        val r = Random()
+//        val n: Int = r.nextInt(11)
+//
+//        val s = n * 200
+//        try {
+//            Thread.sleep(s.toLong())
+//        } catch (e: InterruptedException) {
+//            e.printStackTrace()
+//        }
+//
+//        return "Awake at last after sleeping for $s milliseconds!"
+//    }
 
     private fun cadastrarProdutoFirestore() {
         val btSalvar = binding.btSalvar
@@ -74,14 +78,19 @@ class CadastroProdutoActivity : AppCompatActivity() {
 
             Log.i("salvar", "produto salvo ${documento.id}")
 
-            val i = Intent(this, ListaProdutoActivity::class.java)
-            startActivity(i)
-
             try {
                 Toast.makeText(this, "Cadastrando produto...", Toast.LENGTH_SHORT).show()
-                Thread.sleep(2000)
-                documento.set(produtoDocumento)
+
+                Thread.sleep(1000)
+                lifecycleScope.launch {
+                    delay(2500L)
+                    documento.set(produtoDocumento)
+                    finish()
+                }
                 Toast.makeText(this, "Produto cadastrado com sucesso!", Toast.LENGTH_SHORT).show()
+                Intent(this, ListaProdutoActivity::class.java).also {
+                    startActivity(it)
+                }
 
             } catch (e: InterruptedException) {
                 e.printStackTrace()
