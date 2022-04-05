@@ -7,6 +7,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import br.com.marcoscsouza.meuslivrosat.ApiListActivity
 import br.com.marcoscsouza.meuslivrosat.R
 import br.com.marcoscsouza.meuslivrosat.adapter.ProdutoAdapter
 import br.com.marcoscsouza.meuslivrosat.databinding.ActivityListaProdutoBinding
@@ -38,10 +39,14 @@ class ListaProdutoActivity : AppCompatActivity() {
         Thread(Runnable {
             buscarTodosProdutosNoFirestoreTempoReal()
         }).start()
+
+
     }
 
     override fun onResume() {
         super.onResume()
+
+
         runOnUiThread {
             if (!estaLogado()) {
                 val i = Intent(this, LogarUsuarioActivity::class.java)
@@ -85,7 +90,7 @@ class ListaProdutoActivity : AppCompatActivity() {
     private fun botaoFab() {
         val fab = binding.fabProduto
         fab.setOnClickListener {
-            val intent = Intent(this, CadastroProdutoActivity::class.java)
+            val intent = Intent(this, ApiListActivity::class.java)
             startActivity(intent)
         }
     }
